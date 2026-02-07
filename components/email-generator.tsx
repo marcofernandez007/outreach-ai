@@ -46,7 +46,7 @@ export default function EmailGenerator({
       if (onEmailGenerated) {
         onEmailGenerated(data)
       }
-    } catch (err) {
+    } catch {
       setError('Failed to generate email. Please try again.')
     } finally {
       setLoading(false)

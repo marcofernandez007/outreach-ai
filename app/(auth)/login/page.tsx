@@ -30,8 +30,9 @@ export default function LoginPage() {
         router.push('/dashboard')
         router.refresh()
       }
-    } catch (error) {
-      setError('An error occurred. Please try again.')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred. Please try again.'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

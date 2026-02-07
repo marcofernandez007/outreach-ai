@@ -27,44 +27,42 @@ interface Prospect {
   emails: GeneratedEmail[]
 }
 
-export default async function ProspectDetailPage({ 
+export default function ProspectDetailPage({ 
   params 
 }: { 
-  params: Promise<{ id: string }> 
+  params: { id: string } 
 }) {
   const router = useRouter()
-  const { id } = await params
   const [prospect, setProspect] = useState<Prospect | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
-    fetchProspect()
-  }, [id])
-
-  const fetchProspect = async () => {
-    try {
-      const response = await fetch(`/api/prospects/${id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setProspect(data)
-      } else {
+    async function fetchData() {
+      try {
+        const response = await fetch(`/api/prospects/${params.id}`)
+        if (response.ok) {
+          const data = await response.json()
+          setProspect(data)
+        } else {
+          router.push('/prospects')
+        }
+      } catch (error) {
+        console.error('Error fetching prospect:', error)
         router.push('/prospects')
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Error fetching prospect:', error)
-      router.push('/prospects')
-    } finally {
-      setLoading(false)
     }
-  }
+    fetchData()
+  }, [params.id, router])
 
   const handleUpdate = async (data: ProspectFormData) => {
     setUpdating(true)
 
     try {
-      const response = await fetch(`/api/prospects/${id}`, {
+      const response = await fetch(`/api/prospects/${params.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
