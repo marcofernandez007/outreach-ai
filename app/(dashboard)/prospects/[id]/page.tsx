@@ -27,8 +27,13 @@ interface Prospect {
   emails: GeneratedEmail[]
 }
 
-export default function ProspectDetailPage({ params }: { params: { id: string } }) {
+export default async function ProspectDetailPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
   const router = useRouter()
+  const { id } = await params
   const [prospect, setProspect] = useState<Prospect | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -36,11 +41,11 @@ export default function ProspectDetailPage({ params }: { params: { id: string } 
 
   useEffect(() => {
     fetchProspect()
-  }, [params.id])
+  }, [id])
 
   const fetchProspect = async () => {
     try {
-      const response = await fetch(`/api/prospects/${params.id}`)
+      const response = await fetch(`/api/prospects/${id}`)
       if (response.ok) {
         const data = await response.json()
         setProspect(data)
@@ -59,7 +64,7 @@ export default function ProspectDetailPage({ params }: { params: { id: string } 
     setUpdating(true)
 
     try {
-      const response = await fetch(`/api/prospects/${params.id}`, {
+      const response = await fetch(`/api/prospects/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -129,7 +134,16 @@ export default function ProspectDetailPage({ params }: { params: { id: string } 
         {editing ? (
           <ProspectForm
             onSubmit={handleUpdate}
-            initialData={prospect}
+            initialData={{
+              name: prospect.name,
+              company: prospect.company,
+              role: prospect.role,
+              industry: prospect.industry || undefined,
+              painPoints: prospect.painPoints || undefined,
+              linkedinUrl: prospect.linkedinUrl || undefined,
+              email: prospect.email || undefined,
+              status: prospect.status,
+            }}
             loading={updating}
             submitLabel="Update Prospect"
           />
